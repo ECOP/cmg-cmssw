@@ -81,22 +81,25 @@ class GeneratorAnalyzer( Analyzer ):
             #        p.pdgId(), p.status(), p.pt(), p.eta(), p.phi(), p.numberOfMothers(), p.numberOfDaughters(), 
             #        p.motherRef(0).pdgId() if p.numberOfMothers() > 0 else -999, p.motherRef(0).key()   if p.numberOfMothers() > 0 else -999, 
             #        "  ".join("%d[%d]" % (p.daughter(i).pdgId(), p.daughter(i).status()) for i in xrange(p.numberOfDaughters())))
-            if id in self.savePreFSRParticleIds:
+            #if id in self.savePreFSRParticleIds:
                 # for light objects, we want them pre-radiation
-                if any((p.mother(j).pdgId() == p.pdgId()) for j in xrange(p.numberOfMothers())):
+                #if any((p.mother(j).pdgId() == p.pdgId()) for j in xrange(p.numberOfMothers())):
                     #print "    fail auto-decay"
-                    continue
-            else:
+                    #continue
+            #else:
                 # everything else, we want it after radiation, i.e. just before decay
-                if any((p.daughter(j).pdgId() == p.pdgId() and p.daughter(j).status() > 2) for j in xrange(p.numberOfDaughters())):
+                #if any((p.daughter(j).pdgId() == p.pdgId() and p.daughter(j).status() > 2) for j in xrange(p.numberOfDaughters())):
                     #print "    fail auto-decay"
-                    continue
+                    #continue
             # FIXME find a better criterion to discard there
-            if status == 71: 
+            #if status == 71: 
                 #drop QCD radiation with unclear parentage
-                continue 
+                #continue 
             # is it an interesting particle?
-            ok = False
+            ok = True#False
+            if status!=1 and status!=23 and status!=2 and status!=71:
+                ok=False
+
             if interestingPdgId(id):
                 #print "    pass pdgId"
                 ok = True
@@ -130,11 +133,13 @@ class GeneratorAnalyzer( Analyzer ):
                 gp = p
                 gp.rawIndex = rawIndex # remember its index, so that we can set the mother index later
                 keymap[rawIndex] = len(good)
+                #gp.promptHardFlag = gp.isPromptFinalState() or gp.isDirectPromptTauDecayProductFinalState() or gp.isHardProcess() 
                 good.append(gp)
         # connect mother links
         for igp,gp in enumerate(good):
             gp.motherIndex = -1
             gp.sourceId    = 99
+            gp.promptHardFlag = gp.isPromptFinalState() or gp.isDirectPromptTauDecayProductFinalState() or gp.isHardProcess() 
             gp.genSummaryIndex = igp
             ancestor = None if gp.numberOfMothers() == 0 else gp.motherRef(0)
             while ancestor != None and ancestor.isNonnull():
@@ -148,7 +153,7 @@ class GeneratorAnalyzer( Analyzer ):
                 gp.sourceId = gp.pdgId()
             if gp.motherIndex != -1:
                 ancestor = good[gp.motherIndex]
-                if ancestor.sourceId != 99 and (ancestor.mass() > gp.mass() or gp.sourceId == 99):
+                if hasattr(ancestor, "sourceId") and ancestor.sourceId != 99 and (ancestor.mass() > gp.mass() or gp.sourceId == 99):
                     gp.sourceId = ancestor.sourceId
         event.generatorSummary = good
         # add the ID of the mother to be able to recreate last decay chains

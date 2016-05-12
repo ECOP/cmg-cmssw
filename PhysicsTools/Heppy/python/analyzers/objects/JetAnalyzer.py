@@ -135,6 +135,7 @@ class JetAnalyzer( Analyzer ):
         if self.doJEC:
             if not self.recalibrateJets:  # check point that things won't change
                 jetsBefore = [ (j.pt(),j.eta(),j.phi(),j.rawFactor()) for j in allJets ]
+            print "new event -->", event.input.eventAuxiliary().id().event()
             self.jetReCalibrator.correctAll(allJets, rho, delta=self.shiftJEC, 
                                                 addCorr=True, addShifts=self.addJECShifts,
                                                 metShift=self.deltaMetFromJEC, type1METCorr=self.type1METCorr )           

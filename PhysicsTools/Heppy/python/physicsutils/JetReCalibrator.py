@@ -75,7 +75,6 @@ class JetReCalibrator:
             except RuntimeError, r:
                 print "Caught %s when getting uncertainty for jet of pt %.1f, eta %.2f\n" % (r,corr * jet.pt() * jet.rawFactor(),jet.eta())
                 jet.jetEnergyCorrUncertainty = 0.5
-            #print "   jet with corr pt %6.2f has an uncertainty %.2f " % (jet.pt()*jet.rawFactor()*corr, jet.jetEnergyCorrUncertainty)
             corr *= max(0, 1+delta*jet.jetEnergyCorrUncertainty)
         return corr
 
@@ -132,6 +131,7 @@ class JetReCalibrator:
                     #            jet.pt()*raw, jet.eta(), 
                     #            rawP4forT1.Px()*(corr - l1corr), 
                     #            rawP4forT1.Py()*(corr - l1corr))
+                    #print jet.pt(),newpt,jet.pt()*jet.rawFactor(), rawP4forT1.eta(), rawP4forT1.phi(), jet.physObj.neutralEmEnergy(),jet.physObj.chargedEmEnergy(), (jet.p4()*jet.rawFactor()).pt()==rawP4forT1.pt()
                     type1METCorr[0] -= rawP4forT1.Px() * (corr - l1corr) 
                     type1METCorr[1] -= rawP4forT1.Py() * (corr - l1corr) 
                     type1METCorr[2] += rawP4forT1.Et() * (corr - l1corr) 
